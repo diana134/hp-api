@@ -1,24 +1,20 @@
-import { createServer } from 'node:http';
+import express from 'express';
 
-const hostname = '127.0.0.1';
 const port = 3000;
-
-const server = createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello World');
+const app = express();
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
 });
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
+app.get('/', (req, res) => {
+  res.send('Hello World');
 });
 
+// Receive commands to do damage or heal
+// want: character, damage type, damage amount
+// healing is negative damage?
 
-// const config = require('./briv.json');
-import * as fs from 'fs';
-const character_data = JSON.parse(fs.readFileSync('./briv.json'))
-console.log(character_data);
-
+// Initialize the database
 import sqlite3 from 'sqlite3';
 import { initialize } from './sql.js';
 const db = new sqlite3.Database('./data.db');
@@ -29,3 +25,11 @@ try {
 } finally {
   db.close();
 }
+
+// Read in the character data
+import * as fs from 'fs';
+const character_data = JSON.parse(fs.readFileSync('./briv.json'))
+
+
+// Read character data into database
+
