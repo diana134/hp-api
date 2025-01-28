@@ -75,8 +75,7 @@ export const initialize = async (db) => {
         ${character_data['stats']['constitution']}, 
         ${character_data['stats']['intelligence']}, 
         ${character_data['stats']['wisdom']}, 
-        ${character_data['stats']['charisma']})
-      `;
+        ${character_data['stats']['charisma']})`;
     return new Promise((resolve, reject) => {
         db.exec(query,
             (err) => {
@@ -94,7 +93,7 @@ export const new_class = async (db, class_data) => {
     `INSERT OR REPLACE INTO classes (id, name, hit_dice_value)
     VALUES ('${class_id}', 
       '${class_data['name']}', 
-      ${class_data['hit_dice_value']})`;
+      ${class_data['hitDiceValue']})`;
   return new Promise((resolve, reject) => {
       db.exec(query,
           (err) => {
@@ -111,11 +110,9 @@ export const new_item = async (db, item_data) => {
     `INSERT OR REPLACE INTO items (id, name, affected_object, affected_value, value)
     VALUES ('${item_id}', 
       '${item_data['name']}', 
-      '${item_data['affectedObject']}',
-      '${item_data['affectedValue']}',
-      ${item_data['value']},
-      )
-    `;
+      '${item_data['modifier']['affectedObject']}',
+      '${item_data['modifier']['affectedValue']}',
+      ${item_data['modifier']['value']})`;
   return new Promise((resolve, reject) => {
       db.exec(query,
           (err) => {
@@ -132,9 +129,7 @@ export const new_defense = async (db, defense_data) => {
     `INSERT OR REPLACE INTO defenses (id, type, defense)
     VALUES ('${defense_id}', 
       '${defense_data['type']}', 
-      '${defense_data['defense']}'
-      )
-    `;
+      '${defense_data['defense']}')`;
   return new Promise((resolve, reject) => {
       db.exec(query,
           (err) => {
@@ -152,9 +147,7 @@ export const assign_class = async (db, character_name, class_name, level) => {
     `INSERT OR REPLACE INTO characters_classes (character_id, class_id, level)
     VALUES ('${character_id}', 
       '${class_id}', 
-      ${level}
-      )
-    `;
+      ${level})`;
   return new Promise((resolve, reject) => {
       db.exec(query,
           (err) => {
@@ -171,9 +164,7 @@ export const assign_item = async (db, character_name, item_name) => {
   const query = 
     `INSERT OR REPLACE INTO characters_items (character_id, item_id)
     VALUES ('${character_id}', 
-      '${item_id}'
-      )
-    `;
+      '${item_id}')`;
   return new Promise((resolve, reject) => {
       db.exec(query,
           (err) => {
@@ -188,11 +179,9 @@ export const assign_defense = async (db, character_name, defense_type) => {
   const character_id = character_name.toLowerCase().replace(/\s/g, '');
   const defense_id = defense_type.toLowerCase().replace(/\s/g, '');
   const query = 
-    `INSERT OR REPLACE INTO characters_defenses (character_id, defense_id, level)
+    `INSERT OR REPLACE INTO characters_defenses (character_id, defense_id)
     VALUES ('${character_id}', 
-      '${defense_id}'
-      )
-    `;
+      '${defense_id}')`;
   return new Promise((resolve, reject) => {
       db.exec(query,
           (err) => {

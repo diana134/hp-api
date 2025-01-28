@@ -32,7 +32,7 @@ try {
   for (const i in character_data['classes']) {
     const class_data = character_data['classes'][0];
     await sql.new_class(db, class_data);
-    await sql.assign_class(db, character_data['name'], class_data['name'], class_data['level'])
+    await sql.assign_class(db, character_data['name'], class_data['name'], class_data['classLevel'])
   }
 
   for (const i in character_data['items']) {
