@@ -191,3 +191,13 @@ export const assign_defense = async (db, character_name, defense_type) => {
         );
   });
 };
+
+export const get_character = async (db, character_id) => {
+  const query =`SELECT * FROM characters WHERE id = ?`;
+  return new Promise((resolve, reject) => {
+    db.get(query, [character_id], (err, character) => {
+      if (err) reject(err);
+      resolve(character);
+    });
+  });
+}

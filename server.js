@@ -1,4 +1,5 @@
 import express from 'express';
+import check from 'express-validator';
 
 const port = 3000;
 const app = express();
@@ -8,6 +9,21 @@ app.listen(port, () => {
 
 app.get('/', (req, res) => {
   res.send('Hello World');
+});
+
+app.get('/characters/:id', async (req, res) => {
+  const character_id = req.params.id;
+  try {
+    const character = await sql.get_character(db, character_id);
+    if (!character) {
+      res.status(404).json({error: 'Character not found'});
+    } else {
+      res.json(character);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({error: 'Bad request'});
+  }
 });
 
 // Receive commands to do damage or heal
@@ -21,6 +37,7 @@ const db = new sqlite3.Database('./data.db');
 
 // Read in the character data
 import * as fs from 'fs';
+import { error } from 'console';
 const character_data = JSON.parse(fs.readFileSync('./briv.json'))
 
 try {
