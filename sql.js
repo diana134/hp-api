@@ -6,6 +6,7 @@ export const initialize = async (db) => {
               name TEXT NOT NULL,
               level INTEGER NOT NULL DEFAULT 1,
               hit_points INTEGER NOT NULL DEFAULT 0,
+              temp_hit_points INTEGER NOT NULL DEFAULT 0,
               strength INTEGER NOT NULL DEFAULT 0,
               dexterity INTEGER NOT NULL DEFAULT 0,
               constitution INTEGER NOT NULL DEFAULT 0,
@@ -45,13 +46,13 @@ export const initialize = async (db) => {
             
             CREATE TABLE IF NOT EXISTS defenses (
               id TEXT PRIMARY KEY,
-              type TEXT NOT NULL,
-              defense TEXT NOT NULL
+              type TEXT NOT NULL
             );
             
             CREATE TABLE IF NOT EXISTS characters_defenses (
               character_id TEXT PRIMARY KEY,
-              defense_id TEXT,
+              defense_id TEXT NOT NULL,
+              defense TEXT NOT NULL,
               FOREIGN KEY (character_id) REFERENCES characters(id),
               FOREIGN KEY (defense_id) REFERENCES defenses(id)
             );`, (err) => {
@@ -126,10 +127,9 @@ export const new_item = async (db, item_data) => {
 export const new_defense = async (db, defense_data) => {
   const defense_id = defense_data['type'].toLowerCase().replace(/\s/g, ''); // use defense type all lowercase with spaces removed as the identifier
   const query = 
-    `INSERT OR REPLACE INTO defenses (id, type, defense)
+    `INSERT OR REPLACE INTO defenses (id, type)
     VALUES ('${defense_id}', 
-      '${defense_data['type']}', 
-      '${defense_data['defense']}')`;
+      '${defense_data['type']}')`;
   return new Promise((resolve, reject) => {
       db.exec(query,
           (err) => {
@@ -175,13 +175,14 @@ export const assign_item = async (db, character_name, item_name) => {
   });
 };
 
-export const assign_defense = async (db, character_name, defense_type) => {
+export const assign_defense = async (db, character_name, defense_type, defense) => {
   const character_id = character_name.toLowerCase().replace(/\s/g, '');
   const defense_id = defense_type.toLowerCase().replace(/\s/g, '');
   const query = 
-    `INSERT OR REPLACE INTO characters_defenses (character_id, defense_id)
+    `INSERT OR REPLACE INTO characters_defenses (character_id, defense_id, defense)
     VALUES ('${character_id}', 
-      '${defense_id}')`;
+      '${defense_id}',
+      '${defense}')`;
   return new Promise((resolve, reject) => {
       db.exec(query,
           (err) => {
@@ -200,4 +201,28 @@ export const get_character = async (db, character_id) => {
       resolve(character);
     });
   });
+};
+
+export const get_character_defense = async (db, character_id, defense_id) => {
+  const query =`SELECT * FROM characters_defenses WHERE character_id = ? and defense_id = ?`;
+  console.log(query, character_id, defense_id);
+  return new Promise((resolve, reject) => {
+    db.get(query, [character_id, defense_id], (err, defense) => {
+      if (err) reject(err);
+      resolve(defense);
+    });
+  });
+}
+
+export const update_character_hit_points = async (db, character_id, hp, temp_hp) => {
+  const query = `UPDATE characters 
+    SET hit_points = ?,
+      temp_hit_points = ?
+    WHERE id = ?`;
+    return new Promise((resolve, reject) => {
+      db.run(query, [hp, temp_hp, character_id], (err) => {
+        if (err) reject(err);
+        resolve();
+      });
+    });
 }

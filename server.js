@@ -1,8 +1,11 @@
 import express from 'express';
-import check from 'express-validator';
+import bodyParser from 'body-parser';
+import * as hp from './hp_logic.js';
 
 const port = 3000;
 const app = express();
+app.use(bodyParser.json({ type: 'application/json' }));
+
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
@@ -20,6 +23,44 @@ app.get('/characters/:id', async (req, res) => {
     } else {
       res.json(character);
     }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({error: 'Bad request'});
+  }
+});
+
+app.patch('/damage/:id', async (req, res) => {
+  try {
+    const character_id = req.params.id;
+    const damage_type = req.body.damage_type;
+    const damage_value = req.body.damage_value;
+    const character = await hp.apply_damage(db, character_id, damage_type, damage_value);
+    
+    if (!character) {
+      res.status(404).json({error: 'Character not found'});
+    } else {
+      res.json(character);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({error: 'Bad request'});
+  }
+});
+
+app.patch('/heal/:id', async (req, res) => {
+  try {
+
+    res.json(character);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({error: 'Bad request'});
+  }
+});
+
+app.patch('/temp_hp/:id', async (req, res) => {
+  try {
+
+    res.json(character);
   } catch (error) {
     console.log(error);
     res.status(400).json({error: 'Bad request'});
