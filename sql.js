@@ -50,9 +50,10 @@ export const initialize = async (db) => {
             );
             
             CREATE TABLE IF NOT EXISTS characters_defenses (
-              character_id TEXT PRIMARY KEY,
+              character_id TEXT NOT NULL,
               defense_id TEXT NOT NULL,
               defense TEXT NOT NULL,
+              PRIMARY KEY (character_id, defense_id),
               FOREIGN KEY (character_id) REFERENCES characters(id),
               FOREIGN KEY (defense_id) REFERENCES defenses(id)
             );`, (err) => {
@@ -205,7 +206,6 @@ export const get_character = async (db, character_id) => {
 
 export const get_character_defense = async (db, character_id, defense_id) => {
   const query =`SELECT * FROM characters_defenses WHERE character_id = ? and defense_id = ?`;
-  console.log(query, character_id, defense_id);
   return new Promise((resolve, reject) => {
     db.get(query, [character_id, defense_id], (err, defense) => {
       if (err) reject(err);

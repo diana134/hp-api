@@ -49,8 +49,15 @@ app.patch('/damage/:id', async (req, res) => {
 
 app.patch('/heal/:id', async (req, res) => {
   try {
-
-    res.json(character);
+    const character_id = req.params.id;
+    const healing_value = req.body.healing_value;
+    const character = await hp.apply_healing(db, character_id, healing_value);
+    
+    if (!character) {
+      res.status(404).json({error: 'Character not found'});
+    } else {
+      res.json(character);
+    }
   } catch (error) {
     console.log(error);
     res.status(400).json({error: 'Bad request'});
@@ -59,8 +66,15 @@ app.patch('/heal/:id', async (req, res) => {
 
 app.patch('/temp_hp/:id', async (req, res) => {
   try {
-
-    res.json(character);
+    const character_id = req.params.id;
+    const temp_hp = req.body.temp_hp;
+    const character = await hp.apply_temp_hp(db, character_id, temp_hp);
+    
+    if (!character) {
+      res.status(404).json({error: 'Character not found'});
+    } else {
+      res.json(character);
+    }
   } catch (error) {
     console.log(error);
     res.status(400).json({error: 'Bad request'});
@@ -88,21 +102,21 @@ try {
   await sql.new_character(db, character_data);
 
   for (const i in character_data['classes']) {
-    const class_data = character_data['classes'][0];
+    const class_data = character_data['classes'][i];
     await sql.new_class(db, class_data);
     await sql.assign_class(db, character_data['name'], class_data['name'], class_data['classLevel'])
   }
 
   for (const i in character_data['items']) {
-    const item_data = character_data['items'][0];
+    const item_data = character_data['items'][i];
     await sql.new_item(db, item_data);
     await sql.assign_item(db, character_data['name'], item_data['name']);
   }
 
   for (const i in character_data['defenses']) {
-    const defense_data = character_data['defenses'][0];
+    const defense_data = character_data['defenses'][i];
     await sql.new_defense(db, defense_data);
-    await sql.assign_defense(db, character_data['name'], defense_data['type']);
+    await sql.assign_defense(db, character_data['name'], defense_data['type'], defense_data['defense']);
   }
 } catch (error) {
   console.log(error);
