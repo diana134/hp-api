@@ -1,6 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import * as hp from './hp_logic.js';
+import { Database } from './database.js';
+import * as fs from 'fs';
 
 const port = 3000;
 const app = express();
@@ -17,7 +19,7 @@ app.get('/', (req, res) => {
 app.get('/characters/:id', async (req, res) => {
   const character_id = req.params.id;
   try {
-    const character = await sql.get_character(db, character_id);
+    const character = await db.get_character(character_id);
     if (!character) {
       res.status(404).json({error: 'Character not found'});
     } else {
@@ -81,42 +83,34 @@ app.patch('/temp_hp/:id', async (req, res) => {
   }
 });
 
-// Receive commands to do damage or heal
-// want: character, damage type, damage amount
-// healing is negative damage?
-
 // Initialize the database
-import sqlite3 from 'sqlite3';
-import * as sql from './sql.js';
-const db = new sqlite3.Database('./data.db');
+const db = new Database('./data.db');
 
 // Read in the character data
-import * as fs from 'fs';
-import { error } from 'console';
 const character_data = JSON.parse(fs.readFileSync('./briv.json'))
 
 try {
-  await sql.initialize(db);
+  await db.initialize();
 
   // Insert character data into database
-  await sql.new_character(db, character_data);
+  await db.new_character(character_data);
 
   for (const i in character_data['classes']) {
     const class_data = character_data['classes'][i];
-    await sql.new_class(db, class_data);
-    await sql.assign_class(db, character_data['name'], class_data['name'], class_data['classLevel'])
+    await db.new_class(class_data);
+    await db.assign_class(character_data['name'], class_data['name'], class_data['classLevel'])
   }
 
   for (const i in character_data['items']) {
     const item_data = character_data['items'][i];
-    await sql.new_item(db, item_data);
-    await sql.assign_item(db, character_data['name'], item_data['name']);
+    await db.new_item(item_data);
+    await db.assign_item(character_data['name'], item_data['name']);
   }
 
   for (const i in character_data['defenses']) {
     const defense_data = character_data['defenses'][i];
-    await sql.new_defense(db, defense_data);
-    await sql.assign_defense(db, character_data['name'], defense_data['type'], defense_data['defense']);
+    await db.new_defense(defense_data);
+    await db.assign_defense(character_data['name'], defense_data['type'], defense_data['defense']);
   }
 } catch (error) {
   console.log(error);

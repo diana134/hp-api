@@ -1,10 +1,7 @@
-import { type } from 'os';
-import * as sql from './sql.js';
-
 export const apply_damage = async (db, character_id, damage_type, damage_value) => {
     try {
-        let character = await sql.get_character(db, character_id);
-        const defense = await sql.get_character_defense(db, character_id, damage_type.toLowerCase().replace(/\s/g, ''));
+        let character = await db.get_character(character_id);
+        const defense = await db.get_character_defense(character_id, damage_type.toLowerCase().replace(/\s/g, ''));
 
         let damage_modifier = 1;
         if (typeof defense !== 'undefined') {
@@ -27,7 +24,7 @@ export const apply_damage = async (db, character_id, damage_type, damage_value) 
 
         character.hit_points = character.hit_points - remaining_damage;    
 
-        await sql.update_character_hit_points(db, character_id, character.hit_points, character.temp_hit_points);
+        await db.update_character_hit_points(character_id, character.hit_points, character.temp_hit_points);
 
         return character;
     } catch (err) {
@@ -38,9 +35,9 @@ export const apply_damage = async (db, character_id, damage_type, damage_value) 
 
 export const apply_healing = async (db, character_id, value) => {
     try {
-        let character = await sql.get_character(db, character_id);
+        let character = await db.get_character(character_id);
         character.hit_points = character.hit_points + value;
-        await sql.update_character_hit_points(db, character_id, character.hit_points, character.temp_hit_points);
+        await db.update_character_hit_points(character_id, character.hit_points, character.temp_hit_points);
         return character;
     } catch (err) {
         console.log(err);
@@ -50,11 +47,11 @@ export const apply_healing = async (db, character_id, value) => {
 
 export const apply_temp_hp = async (db, character_id, temp_hp) => {
     try {
-        let character = await sql.get_character(db, character_id);
+        let character = await db.get_character(character_id);
 
         if (character.temp_hit_points < temp_hp) {
             character.temp_hit_points = temp_hp;
-            await sql.update_character_hit_points(db, character_id, character.hit_points, character.temp_hit_points);
+            await db.update_character_hit_points(character_id, character.hit_points, character.temp_hit_points);
         }
         
         return character;

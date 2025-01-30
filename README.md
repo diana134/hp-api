@@ -33,7 +33,10 @@ body: {
 
 # Future Work
 ## A better DB
-I chose SQLite because it's lightweight and easy to protype with for a small project like this. For a production system, I would want something more robust like PostrgrSQL or MySQL.
+I chose SQLite because it's lightweight and easy to protype with for a small project like this. For a production system, I would want something more robust like PostrgrSQL or MySQL. I wrote the code in such a way that replacing the `database.js` file should be the only work required to change out databases.
+
+## Testing
+I feel tests have limited utility on a small project like this, but as it scales, tests become an invaluable tool to ensure stability and consistency.
 
 ## Security
 ### Authentication
